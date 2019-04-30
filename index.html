@@ -1,0 +1,207 @@
+<html>
+<header>
+	<title>Tic - Tac - Toe</title>
+	<style>
+.cell {
+	margin: 10;
+	width: 3em;
+	height: 3em;
+	text-align: center;
+	size: 1em;
+	font-size: 3em;
+}
+
+td:hover {
+	background-color: #f1f2ab;
+}
+</style>
+	<script>
+		var lState = [ , , , , , , , , ];
+		var lAvailableSpots = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
+		var lXSpots = [];
+		var lOSpots = [];
+		var lWinningCombinations = [ "036", "147", "258", "012", "345", "678",
+				"048", "246" ];
+		var lGameOver = false;
+
+		function toggleCellState(pCell) {
+			if (pCell.innerHTML === "" && !lGameOver) {
+				pCell.innerHTML = "X";
+				lState[pCell.id] = pCell.innerHTML;
+				spliceArray(lAvailableSpots, pCell.id);
+				lXSpots.push(pCell.id);
+				checkWinner(lXSpots);
+				if (lAvailableSpots.length != 0 && !lGameOver) {
+					playNextMove();
+					checkWinner(lOSpots);
+				} else {
+					if (lAvailableSpots.length == 0 && !lGameOver) {
+						document.getElementById("response").innerHTML = "<center><h1>It's a DRAW...!! <br>Wanna try your luck again..???</h1></center>";
+					}
+				}
+				checkState();
+			}
+		}
+
+		function spliceArray(pArray, pValue) {
+			for (var i = 0; i < pArray.length; i++) {
+				if (pArray[i] == pValue) {
+					pArray.splice(i, 1);
+					break;
+				}
+			}
+		}
+
+		function checkWinner(pArray) {
+			for (var lCouter = 0; lCouter < lWinningCombinations.length; lCouter++) {
+				var lCurrentValue = lWinningCombinations[lCouter];
+				var splitMoves = lCurrentValue.split("");
+				for (var i = 0; i < pArray.length; i++) {
+					var lMovesCompleted = new Array();
+					var lMovesRemaining = new Array();
+					if (pArray.includes(splitMoves[0])) {
+						lMovesCompleted.push(splitMoves[0]);
+					} else {
+						lMovesRemaining.push(splitMoves[0]);
+					}
+					if (pArray.includes(splitMoves[1])) {
+						lMovesCompleted.push(splitMoves[1]);
+					} else {
+						lMovesRemaining.push(splitMoves[1]);
+					}
+					if (pArray.includes(splitMoves[2])) {
+						lMovesCompleted.push(splitMoves[2]);
+					} else {
+						lMovesRemaining.push(splitMoves[2]);
+					}
+				}
+				if (lMovesCompleted.length == 3) {
+					document.getElementById("response").innerHTML = "<h1>We have a Winner...!!!</h1>";
+					lGameOver = true;
+				}
+				if (lGameOver) {
+					break;
+				}
+			}
+		}
+
+		function toggleSystemMove(id) {
+			document.getElementById(id).innerHTML = "O";
+			lState[id] = "O";
+			spliceArray(lAvailableSpots, id);
+			lOSpots.push(id);
+		}
+
+		function checkSmartMove() {
+			var smartMoveMade = false;
+			lOSpots.sort();
+			lXSpots.sort();
+
+			smartMoveMade = checkPossibleMove(lOSpots);
+			if (!smartMoveMade) {
+				smartMoveMade = checkPossibleMove(lXSpots);
+			}
+
+			return smartMoveMade;
+		}
+
+		function checkPossibleMove(pArray) {
+			var moveMade = false;
+			if (pArray.length != 0) {
+				for (var lCouter = 0; lCouter < lWinningCombinations.length; lCouter++) {
+					var lCurrentValue = lWinningCombinations[lCouter];
+					var splitMoves = lCurrentValue.split("");
+					for (var i = 0; i < pArray.length; i++) {
+						var lMovesCompleted = new Array();
+						var lMovesRemaining = new Array();
+						if (pArray.includes(splitMoves[0])) {
+							lMovesCompleted.push(splitMoves[0]);
+						} else {
+							lMovesRemaining.push(splitMoves[0]);
+						}
+						if (pArray.includes(splitMoves[1])) {
+							lMovesCompleted.push(splitMoves[1]);
+						} else {
+							lMovesRemaining.push(splitMoves[1]);
+						}
+						if (pArray.includes(splitMoves[2])) {
+							lMovesCompleted.push(splitMoves[2]);
+						} else {
+							lMovesRemaining.push(splitMoves[2]);
+						}
+					}
+					if (lMovesCompleted.length == 2) {
+						if (!lOSpots.includes(lMovesRemaining[0])
+								&& !lXSpots.includes(lMovesRemaining[0])) {
+							toggleSystemMove(lMovesRemaining[0]);
+							console.log("Smart Move Made");
+							moveMade = true;
+						}
+					}
+					if (moveMade) {
+						break;
+					}
+				}
+			}
+			return moveMade;
+		}
+		function playNextMove() {
+			var systemMoveCompleted = false;
+			systemMoveCompleted = checkSmartMove();
+			if (!systemMoveCompleted) {
+				var lRandomSpot = Math.floor(Math.random() * 9);
+				while (!lAvailableSpots.includes(lRandomSpot)) {
+					lRandomSpot = Math.floor(Math.random() * 9);
+				}
+				console.log("Random Move Made");
+				toggleSystemMove(lRandomSpot + "");
+			}
+		}
+
+		function resetGame() {
+			for (var i = 0; i < 9; i++) {
+				document.getElementById(i).innerHTML = "";
+				lState = [ , , , , , , , , ];
+				lAvailableSpots = [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ];
+				lXSpots = [];
+				lOSpots = [];
+				document.getElementById("reset").style.display = "none";
+				document.getElementById("response").innerHTML = "";
+				lGameOver = false;
+			}
+		}
+
+		function checkState() {
+			if (lAvailableSpots.length == 0 || lGameOver) {
+				document.getElementById("reset").style.display = "block";
+			}
+		}
+	</script>
+</header>
+<body>
+	<center>
+		<h1>Tic - Tac - Toe</h1>
+		<Table border="1em">
+			<tr>
+				<td class="cell" id="8" onclick="toggleCellState(this);"></td>
+				<td class="cell" id="7" onclick="toggleCellState(this);"></td>
+				<td class="cell" id="6" onclick="toggleCellState(this);"></td>
+			</tr>
+			<tr>
+				<td class="cell" id="5" onclick="toggleCellState(this);"></td>
+				<td class="cell" id="4" onclick="toggleCellState(this);"></td>
+				<td class="cell" id="3" onclick="toggleCellState(this);"></td>
+			</tr>
+			<tr>
+				<td class="cell" id="2" onclick="toggleCellState(this);"></td>
+				<td class="cell" id="1" onclick="toggleCellState(this);"></td>
+				<td class="cell" id="0" onclick="toggleCellState(this);"></td>
+			</tr>
+		</table>
+		<div id="reset" style="margin-top: 3em; display: none;">
+			<button onClick="resetGame();">Reset Game</button>
+		</div>
+		<div id="response"></div>
+	</center>
+</body>
+</html>
